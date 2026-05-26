@@ -113,6 +113,13 @@ class MindFlowRepository {
       .map((s) => s.docs.map(ChatMessage.fromDoc).toList());
   Future<void> addChat(ChatMessage message) =>
       db.collection('ai_chats').add(message.toMap());
+  Future<void> updateChat(String id, String text) =>
+      db.collection('ai_chats').doc(id).update({
+        'text': text.trim(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+  Future<void> deleteChat(String id) =>
+      db.collection('ai_chats').doc(id).delete();
 
   Stream<List<CommunityPost>> community() => db
       .collection('community_posts')
@@ -155,10 +162,21 @@ class MindFlowRepository {
     await db.collection('voice_journals').add(VoiceJournal(
             id: '',
             uid: uid,
+            title: 'Voice reflection',
             audioUrl: url,
             durationSeconds: durationSeconds,
             createdAt: DateTime.now())
         .toMap());
+  }
+
+  Future<void> updateVoiceJournal(String id, String title) =>
+      db.collection('voice_journals').doc(id).update({
+        'title': title.trim(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+  Future<void> deleteVoiceJournal(VoiceJournal voice) async {
+    await storage.refFromURL(voice.audioUrl).delete();
+    await db.collection('voice_journals').doc(voice.id).delete();
   }
 
   Stream<List<PhotoMemory>> photoMemories(String uid) => db
@@ -188,6 +206,16 @@ class MindFlowRepository {
             createdAt: DateTime.now())
         .toMap());
     return url;
+  }
+
+  Future<void> updatePhotoMemory(String id, String caption) =>
+      db.collection('photo_memories').doc(id).update({
+        'caption': caption.trim(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+  Future<void> deletePhotoMemory(PhotoMemory photo) async {
+    await storage.refFromURL(photo.url).delete();
+    await db.collection('photo_memories').doc(photo.id).delete();
   }
 }
 

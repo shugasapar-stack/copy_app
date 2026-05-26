@@ -46,7 +46,7 @@ service cloud.firestore {
     match /community_posts/{postId} {
       allow read: if signedIn();
       allow create: if ownsIncoming();
-      allow update: if signedIn();
+      allow update: if ownsExisting();
       allow delete: if ownsExisting();
     }
   }

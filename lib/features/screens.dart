@@ -502,6 +502,7 @@ class _MoodTrackerScreenState extends ConsumerState<MoodTrackerScreen> {
   String selected = 'calm';
   double intensity = 3;
   final note = TextEditingController();
+  MoodLog? editingMood;
 
   @override
   Widget build(BuildContext context) {
@@ -538,7 +539,13 @@ class _MoodTrackerScreenState extends ConsumerState<MoodTrackerScreen> {
                           const InputDecoration(labelText: 'Optional note')),
                   const SizedBox(height: 12),
                   FilledButton(
-                      onPressed: _save, child: const Text('Save mood')),
+                      onPressed: _save,
+                      child: Text(
+                          editingMood == null ? 'Save mood' : 'Update mood')),
+                  if (editingMood != null)
+                    TextButton(
+                        onPressed: _cancelMoodEdit,
+                        child: const Text('Cancel edit')),
                 ])),
             const SectionTitle('Mood history'),
             history.when(
@@ -555,10 +562,18 @@ class _MoodTrackerScreenState extends ConsumerState<MoodTrackerScreen> {
                         ref.read(repositoryProvider).deleteMood(mood.id),
                     background: const DeleteBg(),
                     child: ListTile(
+                        onTap: () => _editMood(mood),
                         title: Text('${moodIcons[mood.mood]} ${mood.mood}'),
                         subtitle: Text(
                             '${DateFormat.yMMMd().add_jm().format(mood.createdAt)}  ${mood.note}'),
-                        trailing: Text('${mood.intensity}/5')),
+                        trailing:
+                            Row(mainAxisSize: MainAxisSize.min, children: [
+                          Text('${mood.intensity}/5'),
+                          IconButton(
+                              tooltip: 'Edit mood',
+                              onPressed: () => _editMood(mood),
+                              icon: const Icon(Icons.edit_outlined)),
+                        ])),
                   ),
               ]),
             ),
@@ -570,14 +585,34 @@ class _MoodTrackerScreenState extends ConsumerState<MoodTrackerScreen> {
     final uid = ref.read(authProvider).currentUser?.uid;
     if (uid == null) return;
     await ref.read(repositoryProvider).saveMood(MoodLog(
-        id: '',
+        id: editingMood?.id ?? '',
         uid: uid,
         mood: selected,
         note: note.text.trim(),
         intensity: intensity.round(),
-        createdAt: DateTime.now()));
+        createdAt: editingMood?.createdAt ?? DateTime.now()));
+    final wasEditing = editingMood != null;
     note.clear();
-    if (mounted) toast(context, 'Mood saved.');
+    setState(() => editingMood = null);
+    if (mounted) toast(context, wasEditing ? 'Mood updated.' : 'Mood saved.');
+  }
+
+  void _editMood(MoodLog mood) {
+    setState(() {
+      editingMood = mood;
+      selected = mood.mood;
+      intensity = mood.intensity.toDouble();
+      note.text = mood.note;
+    });
+  }
+
+  void _cancelMoodEdit() {
+    setState(() {
+      editingMood = null;
+      selected = 'calm';
+      intensity = 3;
+      note.clear();
+    });
   }
 }
 
@@ -750,15 +785,31 @@ class _VoiceJournalScreenState extends ConsumerState<VoiceJournalScreen> {
             error: (e, _) => Text('$e'),
             data: (items) => Column(children: [
                   for (final item in items)
-                    ListTile(
-                        leading: const Icon(Icons.graphic_eq),
-                        title: Text('${item.durationSeconds}s reflection'),
-                        subtitle: Text(
-                            DateFormat.yMMMd().add_jm().format(item.createdAt)),
-                        trailing: IconButton(
-                            icon: const Icon(Icons.open_in_new),
-                            onPressed: () =>
-                                launchUrl(Uri.parse(item.audioUrl)))),
+                    Dismissible(
+                      key: ValueKey(item.id),
+                      direction: DismissDirection.endToStart,
+                      background: const DeleteBg(),
+                      onDismissed: (_) =>
+                          ref.read(repositoryProvider).deleteVoiceJournal(item),
+                      child: ListTile(
+                          leading: const Icon(Icons.graphic_eq),
+                          title: Text(item.title),
+                          subtitle: Text(
+                              '${item.durationSeconds}s  ${DateFormat.yMMMd().add_jm().format(item.createdAt)}'),
+                          trailing:
+                              Row(mainAxisSize: MainAxisSize.min, children: [
+                            IconButton(
+                                tooltip: 'Edit title',
+                                icon: const Icon(Icons.edit_outlined),
+                                onPressed: () =>
+                                    _editVoiceTitle(context, ref, item)),
+                            IconButton(
+                                tooltip: 'Open audio',
+                                icon: const Icon(Icons.open_in_new),
+                                onPressed: () =>
+                                    launchUrl(Uri.parse(item.audioUrl))),
+                          ])),
+                    ),
                 ])),
       ]),
     );
@@ -790,6 +841,15 @@ class _VoiceJournalScreenState extends ConsumerState<VoiceJournalScreen> {
           .saveVoiceJournal(uid: uid, filePath: path, durationSeconds: seconds);
       if (mounted) toast(context, 'Voice journal uploaded.');
     }
+  }
+
+  Future<void> _editVoiceTitle(
+      BuildContext context, WidgetRef ref, VoiceJournal voice) async {
+    final value = await editTextDialog(context,
+        title: 'Edit voice title', initial: voice.title, label: 'Title');
+    if (value == null || value.trim().isEmpty) return;
+    await ref.read(repositoryProvider).updateVoiceJournal(voice.id, value);
+    if (context.mounted) toast(context, 'Voice title updated.');
   }
 }
 
@@ -1036,8 +1096,28 @@ class ProfileScreen extends ConsumerWidget {
                 for (final photo in photos)
                   ClipRRect(
                       borderRadius: BorderRadius.circular(14),
-                      child: CachedNetworkImage(
-                          imageUrl: photo.url, fit: BoxFit.cover)),
+                      child: GridTile(
+                          footer: Container(
+                              color: Colors.black54,
+                              child: Row(children: [
+                                Expanded(
+                                    child: Text(photo.caption,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(fontSize: 11))),
+                                InkWell(
+                                    onTap: () =>
+                                        _editMemory(context, ref, photo),
+                                    child: const Icon(Icons.edit_outlined,
+                                        size: 16)),
+                                InkWell(
+                                    onTap: () =>
+                                        _deleteMemory(context, ref, photo),
+                                    child: const Icon(Icons.delete_outline,
+                                        size: 16)),
+                              ])),
+                          child: CachedNetworkImage(
+                              imageUrl: photo.url, fit: BoxFit.cover))),
               ]),
         ]);
   }
@@ -1053,6 +1133,21 @@ class ProfileScreen extends ConsumerWidget {
       if (!context.mounted) return;
       toast(context, 'Photo memory uploaded.');
     }
+  }
+
+  Future<void> _editMemory(
+      BuildContext context, WidgetRef ref, PhotoMemory photo) async {
+    final value = await editTextDialog(context,
+        title: 'Edit memory', initial: photo.caption, label: 'Caption');
+    if (value == null || value.trim().isEmpty) return;
+    await ref.read(repositoryProvider).updatePhotoMemory(photo.id, value);
+    if (context.mounted) toast(context, 'Photo memory updated.');
+  }
+
+  Future<void> _deleteMemory(
+      BuildContext context, WidgetRef ref, PhotoMemory photo) async {
+    await ref.read(repositoryProvider).deletePhotoMemory(photo);
+    if (context.mounted) toast(context, 'Photo memory deleted.');
   }
 }
 
@@ -1175,11 +1270,11 @@ class SectionTitle extends StatelessWidget {
               ?.copyWith(fontWeight: FontWeight.w900)));
 }
 
-class ChatBubble extends StatelessWidget {
+class ChatBubble extends ConsumerWidget {
   const ChatBubble({super.key, required this.message});
   final ChatMessage message;
   @override
-  Widget build(BuildContext context) => Align(
+  Widget build(BuildContext context, WidgetRef ref) => Align(
         alignment:
             message.isUser ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
@@ -1199,11 +1294,32 @@ class ChatBubble extends StatelessWidget {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(message.text, style: const TextStyle(height: 1.35)),
             const SizedBox(height: 5),
-            Text(DateFormat.Hm().format(message.createdAt),
-                style: const TextStyle(color: Colors.white54, fontSize: 11)),
+            Row(mainAxisSize: MainAxisSize.min, children: [
+              Text(DateFormat.Hm().format(message.createdAt),
+                  style: const TextStyle(color: Colors.white54, fontSize: 11)),
+              if (message.isUser) ...[
+                const SizedBox(width: 6),
+                InkWell(
+                    onTap: () => _editMessage(context, ref),
+                    child: const Icon(Icons.edit_outlined, size: 15)),
+                const SizedBox(width: 6),
+                InkWell(
+                    onTap: () =>
+                        ref.read(repositoryProvider).deleteChat(message.id),
+                    child: const Icon(Icons.delete_outline, size: 15)),
+              ]
+            ]),
           ]),
         ),
       );
+
+  Future<void> _editMessage(BuildContext context, WidgetRef ref) async {
+    final value = await editTextDialog(context,
+        title: 'Edit message', initial: message.text, label: 'Message');
+    if (value == null || value.trim().isEmpty) return;
+    await ref.read(repositoryProvider).updateChat(message.id, value);
+    if (context.mounted) toast(context, 'Message updated.');
+  }
 }
 
 class TypingBubble extends StatelessWidget {
@@ -1307,13 +1423,31 @@ class CommunityCard extends ConsumerWidget {
                   ref.read(repositoryProvider).supportPost(post.id),
               icon: const Icon(Icons.favorite_border),
               label: Text('${post.supportCount}')),
-          if (post.uid == ref.read(authProvider).currentUser?.uid)
+          if (post.uid == ref.read(authProvider).currentUser?.uid) ...[
+            IconButton(
+                tooltip: 'Edit post',
+                onPressed: () => _editPost(context, ref),
+                icon: const Icon(Icons.edit_outlined)),
             IconButton(
                 onPressed: () =>
                     ref.read(repositoryProvider).deletePost(post.id),
                 icon: const Icon(Icons.delete_outline)),
+          ],
         ]),
       ])));
+
+  Future<void> _editPost(BuildContext context, WidgetRef ref) async {
+    final value = await editTextDialog(context,
+        title: 'Edit post', initial: post.text, label: 'Post');
+    if (value == null || value.trim().isEmpty) return;
+    await ref.read(repositoryProvider).savePost(CommunityPost(
+        id: post.id,
+        uid: post.uid,
+        text: value.trim(),
+        supportCount: post.supportCount,
+        createdAt: post.createdAt));
+    if (context.mounted) toast(context, 'Post updated.');
+  }
 }
 
 class VideoCard extends StatelessWidget {
@@ -1411,6 +1545,30 @@ class ButtonLoader extends StatelessWidget {
       width: 20,
       height: 20,
       child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white));
+}
+
+Future<String?> editTextDialog(BuildContext context,
+    {required String title, required String initial, required String label}) {
+  final controller = TextEditingController(text: initial);
+  return showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+            title: Text(title),
+            content: TextField(
+                controller: controller,
+                autofocus: true,
+                minLines: 1,
+                maxLines: 4,
+                decoration: InputDecoration(labelText: label)),
+            actions: [
+              TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel')),
+              FilledButton(
+                  onPressed: () => Navigator.pop(context, controller.text),
+                  child: const Text('Save')),
+            ],
+          ));
 }
 
 void toast(BuildContext context, String message) =>

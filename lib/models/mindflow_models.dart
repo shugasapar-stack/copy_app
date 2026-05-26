@@ -145,7 +145,8 @@ class ChatMessage {
         'uid': uid,
         'text': text,
         'isUser': isUser,
-        'createdAt': Timestamp.fromDate(createdAt)
+        'createdAt': Timestamp.fromDate(createdAt),
+        'updatedAt': FieldValue.serverTimestamp()
       };
 }
 
@@ -185,11 +186,13 @@ class VoiceJournal {
   const VoiceJournal(
       {required this.id,
       required this.uid,
+      required this.title,
       required this.audioUrl,
       required this.durationSeconds,
       required this.createdAt});
   final String id;
   final String uid;
+  final String title;
   final String audioUrl;
   final int durationSeconds;
   final DateTime createdAt;
@@ -199,6 +202,7 @@ class VoiceJournal {
     return VoiceJournal(
         id: doc.id,
         uid: data['uid'] ?? '',
+        title: data['title'] ?? 'Voice reflection',
         audioUrl: data['audioUrl'] ?? '',
         durationSeconds: data['durationSeconds'] ?? 0,
         createdAt: _date(data['createdAt']));
@@ -206,9 +210,11 @@ class VoiceJournal {
 
   Map<String, dynamic> toMap() => {
         'uid': uid,
+        'title': title,
         'audioUrl': audioUrl,
         'durationSeconds': durationSeconds,
-        'createdAt': Timestamp.fromDate(createdAt)
+        'createdAt': Timestamp.fromDate(createdAt),
+        'updatedAt': FieldValue.serverTimestamp()
       };
 }
 
@@ -239,6 +245,7 @@ class PhotoMemory {
         'uid': uid,
         'url': url,
         'caption': caption,
-        'createdAt': Timestamp.fromDate(createdAt)
+        'createdAt': Timestamp.fromDate(createdAt),
+        'updatedAt': FieldValue.serverTimestamp()
       };
 }

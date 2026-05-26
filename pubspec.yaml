@@ -1,0 +1,41 @@
+name: mindflow
+description: MindFlow, a Firebase-backed emotional support and journaling MVP for students.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cached_network_image: 3.4.0
+  cloud_firestore: 4.17.5
+  cupertino_icons: ^1.0.8
+  firebase_auth: 4.20.0
+  firebase_core: 2.32.0
+  firebase_storage: 11.7.7
+  fl_chart: ^0.69.0
+  flutter_animate: 4.5.0
+  flutter_riverpod: 2.5.1
+  go_router: 14.2.7
+  google_fonts: 8.1.0
+  google_sign_in: 6.2.2
+  image_picker: 1.1.2
+  intl: ^0.19.0
+  shared_preferences: 2.3.2
+  url_launcher: ^6.3.1
+
+dev_dependencies:
+  flutter_launcher_icons: ^0.14.3
+  flutter_lints: ^4.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: assets/app_icon/mindflow_icon.png

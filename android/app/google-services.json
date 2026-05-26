@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "650839756862",
-    "project_id": "copyapp-7d466",
-    "storage_bucket": "copyapp-7d466.firebasestorage.app"
+    "project_number": "905742773866",
+    "project_id": "mainproj-efc74",
+    "storage_bucket": "mainproj-efc74.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:650839756862:android:d180265b1cdef563f9016f",
+        "mobilesdk_app_id": "1:905742773866:android:6ee015cecf67c94c1ea413",
         "android_client_info": {
           "package_name": "com.sapargali.shugila.mindflow"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "905742773866-rt9801ehiuhnbntr5qbjl2hcq3cbem90.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sapargali.shugila.mindflow",
+            "certificate_hash": "84849f6660a2b173f1ba0c2241e8a23b0fd84016"
+          }
+        },
+        {
+          "client_id": "905742773866-81rpdrkndr0f3efhlgkobk495o6259es.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyCp61lFyXBKpSF82bUBe1cg3Fw0kwgFaLI"
+          "current_key": "AIzaSyBjvK1bjec5SnDOS0BLxSblVpkvfLUxXXM"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "905742773866-81rpdrkndr0f3efhlgkobk495o6259es.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

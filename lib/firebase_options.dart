@@ -18,37 +18,37 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyCp61lFyXBKpSF82bUBe1cg3Fw0kwgFaLI',
-    appId: '1:650839756862:android:d180265b1cdef563f9016f',
-    messagingSenderId: '650839756862',
-    projectId: 'copyapp-7d466',
-    authDomain: 'copyapp-7d466.firebaseapp.com',
-    storageBucket: 'copyapp-7d466.firebasestorage.app',
+    apiKey: 'AIzaSyBjvK1bjec5SnDOS0BLxSblVpkvfLUxXXM',
+    appId: '1:905742773866:android:6ee015cecf67c94c1ea413',
+    messagingSenderId: '905742773866',
+    projectId: 'mainproj-efc74',
+    authDomain: 'mainproj-efc74.firebaseapp.com',
+    storageBucket: 'mainproj-efc74.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCp61lFyXBKpSF82bUBe1cg3Fw0kwgFaLI',
-    appId: '1:650839756862:android:d180265b1cdef563f9016f',
-    messagingSenderId: '650839756862',
-    projectId: 'copyapp-7d466',
-    storageBucket: 'copyapp-7d466.firebasestorage.app',
+    apiKey: 'AIzaSyBjvK1bjec5SnDOS0BLxSblVpkvfLUxXXM',
+    appId: '1:905742773866:android:6ee015cecf67c94c1ea413',
+    messagingSenderId: '905742773866',
+    projectId: 'mainproj-efc74',
+    storageBucket: 'mainproj-efc74.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCp61lFyXBKpSF82bUBe1cg3Fw0kwgFaLI',
-    appId: '1:650839756862:android:d180265b1cdef563f9016f',
-    messagingSenderId: '650839756862',
-    projectId: 'copyapp-7d466',
-    storageBucket: 'copyapp-7d466.firebasestorage.app',
+    apiKey: 'AIzaSyBjvK1bjec5SnDOS0BLxSblVpkvfLUxXXM',
+    appId: '1:905742773866:android:6ee015cecf67c94c1ea413',
+    messagingSenderId: '905742773866',
+    projectId: 'mainproj-efc74',
+    storageBucket: 'mainproj-efc74.firebasestorage.app',
     iosBundleId: 'com.sapargali.shugila.mindflow',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCp61lFyXBKpSF82bUBe1cg3Fw0kwgFaLI',
-    appId: '1:650839756862:android:d180265b1cdef563f9016f',
-    messagingSenderId: '650839756862',
-    projectId: 'copyapp-7d466',
-    storageBucket: 'copyapp-7d466.firebasestorage.app',
+    apiKey: 'AIzaSyBjvK1bjec5SnDOS0BLxSblVpkvfLUxXXM',
+    appId: '1:905742773866:android:6ee015cecf67c94c1ea413',
+    messagingSenderId: '905742773866',
+    projectId: 'mainproj-efc74',
+    storageBucket: 'mainproj-efc74.firebasestorage.app',
     iosBundleId: 'com.sapargali.shugila.mindflow',
   );
 }
